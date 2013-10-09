@@ -40,6 +40,12 @@ function Timer(time, timerID, groupID) {
       // This is where a notification (sound or screen flash or something) should go
       this.timerElement.css('color','red');
 
+      // Reset timer if auto reset box checked
+      if (this.timerRow.find('.auto-reset-timer:checked').length > 0) {
+        setTimeout(function(){return;}, 1000);
+        this.resetTimer();
+      }
+
       clearInterval(this.counter);
 
       // Triggers
@@ -182,7 +188,8 @@ function addTimer() {
   table.append("\
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td>Timer " + (timerID + 1) + "</td>\
-      <td colspan='3' class='timer' id='timer" + timerID + "'></td>\
+      <td class='timer' id='timer" + timerID + "'></td>\
+      <td><label><input type='checkbox' class='auto-reset-timer'><small> Auto Reset</small></label></td>\
       <td>\
         <a class='btn btn-primary btn-sm btn-start-timer' id='btn-start-timer" + timerID + "'>Start</a>\
         <a class='btn btn-primary btn-sm btn-pause-timer' id='btn-pause-timer" + timerID + "'>Pause</a>\
