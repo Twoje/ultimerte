@@ -49,24 +49,27 @@ function Timer(time, timerID, groupID) {
       clearInterval(this.counter);
 
       // Triggers
-      var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected').text();
-      if (thisTriggerType == 'will trigger') {
+      var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected');
+
+      // Will Trigger
+      if (thisTriggerType.val() == 1) {
         var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected').text();
         var thisTriggerOptID = thisTriggerOpt.substring('Timer '.length) - 1;
         timers[thisTriggerOptID].startTimer();
       }
 
+      // Is Triggered By
       $.each($('.timer-row'), function() {
         var thisTimerElementID = $(this).find('.timer').attr('id');
         var thisTimerID = thisTimerElementID.substring('timer'.length);
 
-        var triggerType = $(this).find('.trigger-type-timer :selected').text();
-        if (thisTimerID == _this.timerID || triggerType == 'will trigger') {
+        var triggerType = $(this).find('.trigger-type-timer :selected');
+        if (thisTimerID == _this.timerID || triggerType.val() == 1) {
           return true;
         }
 
         var triggerOpt = $(this).find('.trigger-opts-timer :selected').text();
-        if (triggerOpt == 'Timer ' + (_this.timerID + 1)) {
+        if ((triggerType.val() == 2) && (triggerOpt == 'Timer ' + (_this.timerID + 1))) {
           timers[thisTimerID].startTimer();
         }
 
@@ -131,7 +134,7 @@ function addTriggers(timerID) {
   $("#trigger-opts-timer" + timerID).html('');
   var triggersStr = '';
   $.each(Object.keys(groups), function(key){
-    triggersStr = triggersStr.concat("<optgroup label='Group " + (key + 1) + "'></optgroup>");
+    triggersStr = triggersStr.concat("<optgroup label='Group " + (key + 1) + "'>");
     var timersArray = groups[key];
     if (timersArray.length > 0) {
       $.each(timersArray, function() {
@@ -143,6 +146,7 @@ function addTriggers(timerID) {
         }
       });
     }
+    triggersStr = triggersStr.concat("</optgroup>");
   });
   $("#trigger-opts-timer" + timerID).html(triggersStr);
 }
@@ -189,7 +193,7 @@ function addTimer() {
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td>Timer " + (timerID + 1) + "</td>\
       <td class='timer' id='timer" + timerID + "'></td>\
-      <td><label><input type='checkbox' class='auto-reset-timer'><small> Auto Reset</small></label></td>\
+      <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
       <td>\
         <a class='btn btn-primary btn-sm btn-start-timer' id='btn-start-timer" + timerID + "'>Start</a>\
         <a class='btn btn-primary btn-sm btn-pause-timer' id='btn-pause-timer" + timerID + "'>Pause</a>\
@@ -197,10 +201,11 @@ function addTimer() {
         <a class='btn btn-danger btn-sm btn-del-timer' id='btn-del-timer" + timerID + "'>X</a>\
       </td>\
       <td><select class='form-control trigger-type-timer'>\
-        <option>will trigger</option>\
-        <option>is triggered by</option>\
+        <option value='0'>No Trigger</option>\
+        <option value='1'>will trigger</option>\
+        <option value='2'>is triggered by</option>\
       </select></td>\
-      <td><select class='form-control trigger-opts-timer' id='trigger-opts-timer" + timerID + "'></select></td>\
+      <td><select class='form-control trigger-opts-timer' id='trigger-opts-timer" + timerID + "' disabled></select></td>\
     </tr>");
 
   // Create new timer object and add to timer dict
@@ -305,7 +310,7 @@ $('.jumbotron').on('click', '.btn-del-timer', function() {
 $('.add_group').click(addGroup);
 
 // Start all timers in group
-$('.jumbotron').on('click', '.btn-start-group', function(event) {
+$('.jumbotron').on('click', '.btn-start-group', function() {
   var timerIDs = getGroupTimerIDs($(this));
   $.each(timerIDs, function(timerID) {
     timers[timerID].startTimer();
@@ -313,7 +318,7 @@ $('.jumbotron').on('click', '.btn-start-group', function(event) {
 }); 
 
 // Pause all timers in group
-$('.jumbotron').on('click', '.btn-pause-group', function(event) {
+$('.jumbotron').on('click', '.btn-pause-group', function() {
   var timerIDs = getGroupTimerIDs($(this));
   $.each(timerIDs, function(timerID) {
     timers[timerID].pauseTimer();
@@ -321,7 +326,7 @@ $('.jumbotron').on('click', '.btn-pause-group', function(event) {
 }); 
 
 // Reset all timers in group
-$('.jumbotron').on('click', '.btn-reset-group', function(event) {
+$('.jumbotron').on('click', '.btn-reset-group', function() {
   var timerIDs = getGroupTimerIDs($(this));
   $.each(timerIDs, function(timerID) {
     timers[timerID].resetTimer();
@@ -329,7 +334,7 @@ $('.jumbotron').on('click', '.btn-reset-group', function(event) {
 });
 
 // Remove group of timers
-$('.jumbotron').on('click', '.btn-del-group', function(event) {
+$('.jumbotron').on('click', '.btn-del-group', function() {
   var groupElementID = $(this).parents().eq(2).attr('id');
   var timerIDs = $('#' + groupElementID).find('.timer');
   $.each(timerIDs, function() {
@@ -339,4 +344,14 @@ $('.jumbotron').on('click', '.btn-del-group', function(event) {
   });
   $('#' + groupElementID).remove();
   delete groups[groupElementID.substring('timer-group'.length)];
+});
+
+// Enable/disable trigger options depending on trigger type
+$('.jumbotron').on('change', '.trigger-type-timer', function(){
+  if ($(':selected', $(this)).val() == 0) {
+    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', 'disabled');
+  }
+  else {
+    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', false);
+  }
 });
