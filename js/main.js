@@ -1,139 +1,9 @@
-function Timer(time, timerID, groupID) {
-  this.count = time;
-  this.isTicking = false;
-  this.timerID = timerID;
-  this.groupID = groupID;
-  this.timerElement = $('#timer' + timerID);
-  this.timerRow = $('#timer-row' + timerID);
-
-  // Create leading zero for numbers < 10
-  function pad(t) {
-    return (t < 10) ? ('0' + t) : t;
-  }
-
-  var _this = this;
-
-  // Get clock text for timer
-  this.getTimerText = function() {
-    var hours = Math.floor(this.count / 3600);
-    var mins = Math.floor((this.count % 3600) / 60);
-    var secs = this.count % 60;
-    return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
-  }
-
-  this.timerElement.html(this.getTimerText());
-
-  // Count down the clock
-  this.countdown = function()
-  {
-    if (this.count > 0) {
-      this.count = this.count - 1;
-      this.timerElement.html(this.getTimerText());
-      this.timerElement.css('color','green');
-    }
-    if (this.count <= 0)
-    {
-      // Probably unneccessary, but just in case this.count < 0
-      this.count = 0; // Set this.count to 0
-      this.timerElement.html(this.getTimerText()); // Refresh inner HTML
-
-      // This is where a notification (sound or screen flash or something) should go
-      this.timerElement.css('color','red');
-      this.timerRow.find('.sfx-ding').get(0).play();
-
-      // Reset timer if auto reset box checked
-      if (this.timerRow.find('.auto-reset-timer:checked').length > 0) {
-        setTimeout(function(){return;}, 1000);
-        this.resetTimer();
-      }
-
-      clearInterval(this.counter);
-
-      // Triggers
-      var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected');
-
-      // Will Trigger
-      if (thisTriggerType.val() == 1) {
-        var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected').text();
-        var thisTriggerOptID = thisTriggerOpt.substring('Timer '.length) - 1;
-        timers[thisTriggerOptID].startTimer();
-      }
-
-      // Is Triggered By
-      $.each($('.timer-row'), function() {
-        var thisTimerElementID = $(this).find('.timer').attr('id');
-        var thisTimerID = thisTimerElementID.substring('timer'.length);
-
-        var triggerType = $(this).find('.trigger-type-timer :selected');
-        if (thisTimerID == _this.timerID || triggerType.val() == 1) {
-          return true;
-        }
-
-        var triggerOpt = $(this).find('.trigger-opts-timer :selected').text();
-        if ((triggerType.val() == 2) && (triggerOpt == 'Timer ' + (_this.timerID + 1))) {
-          timers[thisTimerID].startTimer();
-        }
-
-      });
-
-      return;
-    }
-  }
-
-  // Start the timer
-  this.startTimer = function() {
-    if (this.isTicking == false) {
-      this.isTicking = true;
-      this.counter = setInterval(function(){_this.countdown();}, 1000);
-    }
-  }
-
-  // Pause the timer
-  this.pauseTimer = function() {
-    if (this.isTicking == true) {
-      clearInterval(this.counter);
-      this.isTicking = false;
-      this.timerElement.css('color','orange');
-    }
-  }
-
-  // Reset the timer
-  this.resetTimer = function() {
-    clearInterval(this.counter);
-    this.isTicking = false;
-    this.count = time;
-    this.timerElement.html(this.getTimerText());
-    this.timerElement.css('color','black');
-  }
-
-  // Delete the timer
-  this.deleteTimer = function() {
-    delete timers[timerID];
-    this.timerRow.remove();
-
-    // Remove the timer from the array of timers in the group dict
-    $.each(groups[groupID], function() {
-      if (this.timerID == timerID) {
-        groups[groupID].splice(groups[groupID].indexOf(this));
-      }
-    })
-
-    // Remove the group buttons if <= 1 timer remains after deletion
-    if (groups[groupID].length <= 1) {
-      $('#group-btns' + groupID).remove();
-    }
-    $.each(timers, function() {
-      refreshTriggers(this.timerID);
-    });
-  }
-}
-
 var timers = {};
 var groups = {};
 
 function addTriggers(timerID) {
   $("#trigger-opts-timer" + timerID).html('');
-  var triggersStr = '';
+  var triggersStr = '<option selected disabled value="0">Select Timer</option>';
   $.each(Object.keys(groups), function(key){
     triggersStr = triggersStr.concat("<optgroup label='Group " + (key + 1) + "'>");
     var timersArray = groups[key];
@@ -189,10 +59,10 @@ function addTimer() {
   }
 
   // Add new html element
-  var table = ggparent.find('.table');
+  var table = ggparent.find('.table tbody');
   table.append("\
     <tr class='timer-row' id='timer-row" + timerID + "'>\
-      <td><audio class='sfx-ding'><source src='ding.wav' type='audio/wav'></audio></td>\
+      <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.wav' type='audio/wav'></audio></td>\
       <td>Timer " + (timerID + 1) + "</td>\
       <td class='timer' id='timer" + timerID + "'></td>\
       <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
@@ -223,7 +93,7 @@ function addTimer() {
   // Add start all button if number of timers in group is > 1
   if (ggparent.find('.timer-row').length == 2) {
     ggparent.append("\
-      <div id='group-btns" + groupID + "'>\
+      <div class='group-btns' id='group-btns" + groupID + "'>\
         <a class='btn btn-primary btn-sm btn-start-group' id='btn-start-group" + groupID + "'>Start All</a>\
         <a class='btn btn-primary btn-sm btn-pause-group' id='btn-pause-group" + groupID + "'>Pause All</a>\
         <a class='btn btn-primary btn-sm btn-reset-group' id='btn-reset-group" + groupID + "'>Reset All</a>\
@@ -244,18 +114,18 @@ function addGroup() {
     groupID++;
   }
   $(this).parent().append("\
-    <div class='timer-group container' id='timer-group" + groupID + "' style='margin-top:10px;border:1px solid black'>\
+    <div class='timer-group' id='timer-group" + groupID + "'>\
       <form class='navbar-form'>\
         <div class='form-group'>\
           <h2>Group " + (groupID + 1) + "</h2>\
-          <input type='number' placeholder='hours' min='0' name='hours' class='form-control hours-field' style='display:inline;width:auto'>\
-          <input type='number' placeholder='mins' min='0' max='59' name='minutes' class='form-control mins-field' style='display:inline;width:auto'>\
-          <input type='number' placeholder='secs' min='0' max='59' name='seconds' class='form-control secs-field' style='display:inline;width:auto'>\
+          <input type='number' placeholder='hours' min='0' name='hours' class='form-control hours-field'>\
+          <input type='number' placeholder='mins' min='0' max='59' name='minutes' class='form-control mins-field'>\
+          <input type='number' placeholder='secs' min='0' max='59' name='seconds' class='form-control secs-field'>\
           <a class='btn btn-primary btn-sm btn-add-timer'>Add Timer</a>\
           <a class='btn btn-danger btn-sm btn-del-group'>Delete Group</a>\
         </div>\
       </form>\
-      <table class='table table-bordered' style='margin:0 auto'></table>\
+      <table class='table'><tbody></tbody></table>\
     </div>");
   groups[groupID] = new Array();
 }

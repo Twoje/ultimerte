@@ -4,19 +4,47 @@
    Author's custom styles
    ========================================================================== */
 
+footer {
+  padding-top: 40px;
+  padding-bottom: 30px;
+  margin-top: 100px;
+  color: #777;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+}
 
+td {
+  padding: 5px;
+}
 
+.jumbotron {
+  text-align:center;
+}
 
+.page-header h1 {
+  font-size: 60px;
+}
 
+.group-btns {
+  margin-top:10px;
+}
 
+.timer-group {
+  padding-bottom:20px;
+  margin-top:10px;
+  border-top:1px solid black;
+  border-bottom:1px solid black;
+}
 
+.timer-row {
+  margin: 0 5px;
+}
 
+.hours-field, .mins-field, .secs-field {
+  display:inline;
+  width:auto;
+}
 
-
-
-
-
-
-
-
-
+.sfx-cell {
+  display:none;
+}
