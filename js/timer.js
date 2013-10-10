@@ -1,6 +1,7 @@
-function Timer(time, timerID, groupID) {
+function Timer(time, timerID, timerName, groupID) {
   this.count = time;
   this.isTicking = false;
+  this.timerName = timerName;
   this.timerID = timerID;
   this.groupID = groupID;
   this.timerElement = $('#timer' + timerID);
@@ -55,9 +56,8 @@ function Timer(time, timerID, groupID) {
       // Will Trigger
       if (thisTriggerType.val() == 1) {
         var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected');
-        if (thisTriggerOpt.val() != 0) {
-          var thisTriggerOptID = thisTriggerOpt.text().substring('Timer '.length) - 1;
-          timers[thisTriggerOptID].startTimer();
+        if (thisTriggerOpt.val() != 'default') {
+          timers[thisTriggerOpt.val()].startTimer();
         }
       }
 

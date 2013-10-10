@@ -3,17 +3,18 @@ var groups = {};
 
 function addTriggers(timerID) {
   $("#trigger-opts-timer" + timerID).html('');
-  var triggersStr = '<option selected disabled value="0">Select Timer</option>';
+  var triggersStr = '<option selected disabled value="default">Select Timer</option>';
   $.each(Object.keys(groups), function(key){
     triggersStr = triggersStr.concat("<optgroup label='Group " + (key + 1) + "'>");
     var timersArray = groups[key];
     if (timersArray.length > 0) {
       $.each(timersArray, function() {
+        var _this = this;
         if (this.timerID != timerID) {
-          triggersStr = triggersStr.concat("<option>Timer " + (this.timerID + 1) + "</option>");
+          triggersStr = triggersStr.concat("<option value='" + this.timerID + "'>" + this.timerName + "</option>");
         }
         else {
-          triggersStr = triggersStr.concat("<option disabled>Timer " + (this.timerID + 1) + "</option>"); 
+          triggersStr = triggersStr.concat("<option value='" + this.timerID + "'disabled>" + this.timerName + "</option>"); 
         }
       });
     }
@@ -24,10 +25,10 @@ function addTriggers(timerID) {
 
 function refreshTriggers(timerID) {
   var triggerOpts = $('#timer-row' + timerID).find('.trigger-opts-timer');
-  var selectedTriggerOpt = $('#timer-row' + timerID).find('.trigger-opts-timer :selected').text();
+  var selectedTriggerOpt = $('#timer-row' + timerID).find('.trigger-opts-timer :selected');
   addTriggers(timerID);
-  if (Object.keys(timers).indexOf(selectedTriggerOpt.substring('Timer '.length) - 1) > -1) {
-    $(triggerOpts + ' options:contains("' + selectedTriggerOpt + '")').prop('selected', true);
+  if (Object.keys(timers).indexOf(selectedTriggerOpt.val()) > -1) {
+    $(triggerOpts).val(selectedTriggerOpt.text());
   }
 }
 
@@ -36,6 +37,7 @@ function addTimer() {
   var ggparent = parent.parents().eq(1);
   var groupID = parent.find('h2').html().substring('Group '.length) - 1;
 
+  var nameField = parent.find('.name-field');
   var hoursField = parent.find('.hours-field');
   var minsField = parent.find('.mins-field');
   var secsField = parent.find('.secs-field');
@@ -45,6 +47,8 @@ function addTimer() {
   var mins = minsField.val();
   var secs = secsField.val();
   var cdLength = hours * 3600 + mins * 60 + secs / 1;
+
+  var timerName = nameField.val();
 
   // Make sure timer fields aren't empty
   if (cdLength <= 0 || (hoursField.val() == '' && minsField.val() == '' && secsField.val() == '')) {
@@ -62,8 +66,8 @@ function addTimer() {
   var table = ggparent.find('.table tbody');
   table.append("\
     <tr class='timer-row' id='timer-row" + timerID + "'>\
-      <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.wav' type='audio/wav'></audio></td>\
-      <td>Timer " + (timerID + 1) + "</td>\
+      <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.mp3' type='audio/mpeg'></audio></td>\
+      <td>" + timerName + "</td>\
       <td class='timer' id='timer" + timerID + "'></td>\
       <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
       <td>\
@@ -81,7 +85,7 @@ function addTimer() {
     </tr>");
 
   // Create new timer object and add to timer dict
-  var timer = new Timer(cdLength, timerID, groupID);
+  var timer = new Timer(cdLength, timerID, timerName, groupID);
   timers[timerID] = timer;
   groups[groupID].push(timer);
 
@@ -102,6 +106,7 @@ function addTimer() {
   }
 
   // Clear timer entry fields
+  nameField.val('');
   hoursField.val('');
   minsField.val('');
   secsField.val('');
@@ -118,6 +123,7 @@ function addGroup() {
       <form class='navbar-form'>\
         <div class='form-group'>\
           <h2>Group " + (groupID + 1) + "</h2>\
+          <input type='text' placeholder='timer name (optional)' class='form-control name-field'>\
           <input type='number' placeholder='hours' min='0' name='hours' class='form-control hours-field'>\
           <input type='number' placeholder='mins' min='0' max='59' name='minutes' class='form-control mins-field'>\
           <input type='number' placeholder='secs' min='0' max='59' name='seconds' class='form-control secs-field'>\
