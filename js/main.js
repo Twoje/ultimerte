@@ -39,6 +39,7 @@ function Timer(time, timerID, groupID) {
 
       // This is where a notification (sound or screen flash or something) should go
       this.timerElement.css('color','red');
+      this.timerRow.find('.sfx-ding').get(0).play();
 
       // Reset timer if auto reset box checked
       if (this.timerRow.find('.auto-reset-timer:checked').length > 0) {
@@ -118,7 +119,7 @@ function Timer(time, timerID, groupID) {
     })
 
     // Remove the group buttons if <= 1 timer remains after deletion
-    if (groups[groupID].length == 1) {
+    if (groups[groupID].length <= 1) {
       $('#group-btns' + groupID).remove();
     }
     $.each(timers, function() {
@@ -191,6 +192,7 @@ function addTimer() {
   var table = ggparent.find('.table');
   table.append("\
     <tr class='timer-row' id='timer-row" + timerID + "'>\
+      <td><audio class='sfx-ding'><source src='ding.wav' type='audio/wav'></audio></td>\
       <td>Timer " + (timerID + 1) + "</td>\
       <td class='timer' id='timer" + timerID + "'></td>\
       <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
@@ -198,7 +200,7 @@ function addTimer() {
         <a class='btn btn-primary btn-sm btn-start-timer' id='btn-start-timer" + timerID + "'>Start</a>\
         <a class='btn btn-primary btn-sm btn-pause-timer' id='btn-pause-timer" + timerID + "'>Pause</a>\
         <a class='btn btn-primary btn-sm btn-reset-timer' id='btn-reset-timer" + timerID + "'>Reset</a>\
-        <a class='btn btn-danger btn-sm btn-del-timer' id='btn-del-timer" + timerID + "'>X</a>\
+        <a class='btn btn-danger btn-sm btn-del-timer' id='btn-del-timer" + timerID + "'>Delete</a>\
       </td>\
       <td><select class='form-control trigger-type-timer'>\
         <option value='0'>No Trigger</option>\
@@ -225,6 +227,7 @@ function addTimer() {
         <a class='btn btn-primary btn-sm btn-start-group' id='btn-start-group" + groupID + "'>Start All</a>\
         <a class='btn btn-primary btn-sm btn-pause-group' id='btn-pause-group" + groupID + "'>Pause All</a>\
         <a class='btn btn-primary btn-sm btn-reset-group' id='btn-reset-group" + groupID + "'>Reset All</a>\
+        <a class='btn btn-danger btn-sm btn-clear-group' id='btn-clear-group" + groupID + "'>Delete All</a>\
       </div>");
   }
 
@@ -249,7 +252,7 @@ function addGroup() {
           <input type='number' placeholder='mins' min='0' max='59' name='minutes' class='form-control mins-field' style='display:inline;width:auto'>\
           <input type='number' placeholder='secs' min='0' max='59' name='seconds' class='form-control secs-field' style='display:inline;width:auto'>\
           <a class='btn btn-primary btn-sm btn-add-timer'>Add Timer</a>\
-          <a class='btn btn-danger btn-sm btn-del-group'>X</a>\
+          <a class='btn btn-danger btn-sm btn-del-group'>Delete Group</a>\
         </div>\
       </form>\
       <table class='table table-bordered' style='margin:0 auto'></table>\
@@ -298,7 +301,7 @@ $('.jumbotron').on('click', '.btn-reset-timer', function() {
   timers[timerID].resetTimer();
 });
 
-// Remove timer
+// Delete timer
 $('.jumbotron').on('click', '.btn-del-timer', function() {
   var timerID = getButtonTimerID($(this), 'btn-del-timer');
   clearInterval(timers[timerID].counter);
@@ -330,6 +333,15 @@ $('.jumbotron').on('click', '.btn-reset-group', function() {
   var timerIDs = getGroupTimerIDs($(this));
   $.each(timerIDs, function(timerID) {
     timers[timerID].resetTimer();
+  });
+});
+
+// Delete all timers in group
+$('.jumbotron').on('click', '.btn-clear-group', function() {
+  var timerIDs = getGroupTimerIDs($(this));
+  $.each(timerIDs, function(timerID) {
+    clearInterval(timers[timerID].counter);
+    timers[timerID].deleteTimer();
   });
 });
 
