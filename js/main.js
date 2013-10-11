@@ -330,15 +330,15 @@ $('.jumbotron').on({
   }
 }, '.timer-secs-div');
 
-$('.jumbotron').on('keyup', '.timer-hours', function () {
+$('.jumbotron').on('keyup', '.timer-hours-div', function () {
   $(this).html($(this).html().replace(/[^0-9]/g,''));
 });
 
-$('.jumbotron').on('keyup', '.timer-mins', function () {
+$('.jumbotron').on('keyup', '.timer-mins-div', function () {
   $(this).html($(this).html().replace(/[^0-9]/g,''));
 });
 
-$('.jumbotron').on('keyup', '.timer-secs', function () {
+$('.jumbotron').on('keyup', '.timer-secs-div', function () {
   $(this).html($(this).html().replace(/[^0-9]/g,''));
 });
 
