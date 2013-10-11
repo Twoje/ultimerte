@@ -5,7 +5,14 @@ function Timer(time, timerID, timerName, groupID) {
   this.timerID = timerID;
   this.groupID = groupID;
   this.timerElement = $('#timer' + timerID);
+  this.timerHours = this.timerElement.find('.timer-hours');
+  this.timerMins = this.timerElement.find('.timer-mins');
+  this.timerSecs = this.timerElement.find('.timer-secs');
   this.timerRow = $('#timer-row' + timerID);
+
+  this.changeTime = function() {
+    time = this.count;
+  }
 
   // Create leading zero for numbers < 10
   function pad(t) {
@@ -19,23 +26,26 @@ function Timer(time, timerID, timerName, groupID) {
     var hours = Math.floor(this.count / 3600);
     var mins = Math.floor((this.count % 3600) / 60);
     var secs = this.count % 60;
-    return pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+
+    this.timerHours.html(pad(hours));
+    this.timerMins.html(pad(mins));
+    this.timerSecs.html(pad(secs));
   }
 
-  this.timerElement.html(this.getTimerText());
+  this.getTimerText();
 
   // Count down the clock
   this.countdown = function()
   {
     if (this.count > 0) {
       this.count = this.count - 1;
-      this.timerElement.html(this.getTimerText());
+      this.getTimerText();
     }
     if (this.count <= 0)
     {
       // Probably unneccessary, but just in case this.count < 0
       this.count = 0; // Set this.count to 0
-      this.timerElement.html(this.getTimerText()); // Refresh inner HTML
+      this.getTimerText(); // Refresh inner HTML
 
       // This is where a notification (sound or screen flash or something) should go
       this.timerElement.css('color','red');
@@ -63,7 +73,7 @@ function Timer(time, timerID, timerName, groupID) {
 
       // Is Triggered By
       $.each($('.timer-row'), function() {
-        var thisTimerElementID = $(this).find('.timer').attr('id');
+        var thisTimerElementID = $(this).find('.timer').prop('id');
         var thisTimerID = thisTimerElementID.substring('timer'.length);
 
         var triggerType = $(this).find('.trigger-type-timer :selected');
@@ -107,9 +117,9 @@ function Timer(time, timerID, timerName, groupID) {
     clearInterval(this.counter);
     this.isTicking = false;
     this.count = time;
-    this.timerElement.html(this.getTimerText());
+    this.getTimerText();
     this.timerElement.css('color','black');
-      this.timerRow.removeClass('warning').removeClass('danger').removeClass('success');
+    this.timerRow.removeClass('warning').removeClass('danger').removeClass('success');
   }
 
   // Delete the timer

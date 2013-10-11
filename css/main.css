@@ -15,6 +15,7 @@ footer {
 
 td {
   padding: 5px;
+  vertical-align:middle;
 }
 
 .jumbotron {
@@ -49,15 +50,19 @@ td {
   display:none;
 }
 
+.timer-name-div {
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius:4px;
+}
 .timer-name-cell {
   word-wrap:break-word;
 }
-.edit-timer-name-cell {
-  display:none;
-}
 
-.edit-timer-name, .edit-timer-name-confirm, .edit-timer-name-cancel {
-  font-size:.5em;
+.timer-hours-div, .timer-mins-div, .timer-secs-div {
+  display:inline;
+  border: 1px solid transparent;
+  border-radius:4px;
 }
 
 .name-field {

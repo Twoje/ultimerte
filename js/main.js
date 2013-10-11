@@ -74,15 +74,13 @@ function addTimer() {
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.mp3' type='audio/mpeg'></audio></td>\
       <td class='timer-name-cell'>\
-        <span class='timer-name'>" + timerName + "</span>\
-        <a class='edit-timer-name'> edit</a>\
+        <div class='timer-name-div'><span class='timer-name'>" + timerName + "</span></div>\
       </td>\
-      <td class='edit-timer-name-cell'>\
-        <input type='text' placeholder='timer name' class='form-control name-field'>\
-        <a class='edit-timer-name-confirm'> ok</a>\
-        <a class='edit-timer-name-cancel'> cancel</a>\
+      <td class='timer' id='timer" + timerID + "'>\
+        <div class='timer-hours-div'><span class='timer-hours'></span></div>:\
+        <div class='timer-mins-div'><span class='timer-mins'></span></div>:\
+        <div class='timer-secs-div'><span class='timer-secs'></span></div>\
       </td>\
-      <td class='timer' id='timer" + timerID + "'></td>\
       <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
       <td>\
         <a class='btn btn-primary btn-sm btn-start-timer' id='btn-start-timer" + timerID + "'>Start</a>\
@@ -155,7 +153,7 @@ function addGroup() {
 
 // Gets the timer ID for the timer buttons
 function getButtonTimerID(element, elementClass) {
-  var btnID = element.attr('id');
+  var btnID = element.prop('id');
   return btnID.substring(elementClass.length);
 }
 
@@ -165,7 +163,7 @@ function getGroupTimerIDs(element) {
   var timerElementIDs = element.parents().eq(1).find('.timer');
   var timerIDs = new Array();
   $.each(timerElementIDs, function() {
-    var timerID = element.attr('id').substring('timer'.length);
+    var timerID = element.prop('id').substring('timer'.length);
     timerIDs.push(timerID);
   });
   return timerIDs;
@@ -240,10 +238,10 @@ $('.jumbotron').on('click', '.btn-clear-group', function() {
 
 // Remove group of timers
 $('.jumbotron').on('click', '.btn-del-group', function() {
-  var groupElementID = $(this).parents().eq(2).attr('id');
+  var groupElementID = $(this).parents().eq(2).prop('id');
   var timerIDs = $('#' + groupElementID).find('.timer');
   $.each(timerIDs, function() {
-    var timerID = $(this).attr('id').substring('timer'.length);
+    var timerID = $(this).prop('id').substring('timer'.length);
     clearInterval(timers[timerID].counter);
     timers[timerID].deleteTimer();
   });
@@ -254,36 +252,120 @@ $('.jumbotron').on('click', '.btn-del-group', function() {
 // Enable/disable trigger options depending on trigger type
 $('.jumbotron').on('change', '.trigger-type-timer', function(){
   if ($(':selected', $(this)).val() == 0) {
-    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', 'disabled');
+    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', true);
   }
   else {
     $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', false);
   }
 });
 
+// Edit hours of timer
+$('.jumbotron').on({
+  mouseenter : function() {
+    $(this).css('border-color', '#ccc');
+  },
+  mouseleave : function() {
+    $(this).css('border-color', 'transparent');
+  },
+  click : function() {
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    timers[timerID].resetTimer();
+    $(this).find('.timer-hours').prop('contentEditable', true);
+  },
+  blur : function() {
+    $(this).find('.timer-hours').prop('contentEditable', false);
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    var hours = Math.floor(timers[timerID].count / 3600);
+    var newHours = $(this).find('.timer-hours').html();
+    timers[timerID].count = timers[timerID].count + (newHours - hours) * 3600;
+    timers[timerID].changeTime();
+    timers[timerID].getTimerText();
+  }
+}, '.timer-hours-div');
+
+// Edit minutes of timer
+$('.jumbotron').on({
+  mouseenter : function() {
+    $(this).css('border-color', '#ccc');
+  },
+  mouseleave : function() {
+    $(this).css('border-color', 'transparent');
+  },
+  click : function() {
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    timers[timerID].resetTimer();
+    $(this).find('.timer-mins').prop('contentEditable', true);
+  },
+  blur : function() {
+    $(this).find('.timer-mins').prop('contentEditable', false);
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    var mins = Math.floor((timers[timerID].count % 3600) / 60);
+    var newMins = $(this).find('.timer-mins').html();
+    timers[timerID].count = timers[timerID].count + (newMins - mins) * 60;
+    timers[timerID].changeTime();
+    timers[timerID].getTimerText();
+  }
+}, '.timer-mins-div');
+
+// Edit seconds of timer
+$('.jumbotron').on({
+  mouseenter : function() {
+    $(this).css('border-color', '#ccc');
+  },
+  mouseleave : function() {
+    $(this).css('border-color', 'transparent');
+  },
+  click : function() {
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    timers[timerID].resetTimer();
+    $(this).find('.timer-secs').prop('contentEditable', true);
+  }, 
+  blur : function () {
+    $(this).find('.timer-secs').prop('contentEditable', false);
+    var timerElement = $(this).parent();
+    var timerID = timerElement.prop('id').substring('timer'.length);
+    var secs = timers[timerID].count % 60;
+    var newSecs = $(this).find('.timer-secs').html();
+    timers[timerID].count = timers[timerID].count + (newSecs - secs);
+    timers[timerID].changeTime();
+    timers[timerID].getTimerText();
+  }
+}, '.timer-secs-div');
+
+$('.jumbotron').on('keyup', '.timer-hours', function () {
+  $(this).html($(this).html().replace(/[^0-9]/g,''));
+});
+
+$('.jumbotron').on('keyup', '.timer-mins', function () {
+  $(this).html($(this).html().replace(/[^0-9]/g,''));
+});
+
+$('.jumbotron').on('keyup', '.timer-secs', function () {
+  $(this).html($(this).html().replace(/[^0-9]/g,''));
+});
+
+
 
 // Edit name of timer
-$('.jumbotron').on('click', '.edit-timer-name', function() {
-  var timerRowElement = $(this).parents().eq(1);
-  var timerID = timerRowElement.attr('id').substring('timer-row'.length);
-  timerRowElement.find('.name-field').val(timers[timerID].timerName);
-  timerRowElement.find('.edit-timer-name-cell').show();
-  timerRowElement.find('.timer-name-cell').hide();
-});
-
-$('.jumbotron').on('click', '.edit-timer-name-cancel', function() {
-  var timerRowElement = $(this).parents().eq(1);
-  timerRowElement.find('.edit-timer-name-cell').hide();
-  timerRowElement.find('.timer-name-cell').show();
-});
-
-$('.jumbotron').on('click', '.edit-timer-name-confirm', function() {
-  var timerRowElement = $(this).parents().eq(1);
-  var timerID = timerRowElement.attr('id').substring('timer-row'.length);
-  var timerName = timerRowElement.find('.name-field').val();
-  timers[timerID].timerName = timerName;
-  refreshAllTriggers();
-  timerRowElement.find('.timer-name').html(timerName);
-  timerRowElement.find('.edit-timer-name-cell').hide();
-  timerRowElement.find('.timer-name-cell').show();
-});
+$('.jumbotron').on({
+  mouseenter : function() {
+    $(this).css('border-color', '#ccc');
+  },
+  mouseleave : function() {
+    $(this).css('border-color', 'transparent');
+  },
+  click : function() {
+    $(this).prop('contentEditable', true);
+  },
+  blur : function () {
+    var timerRowElement = $(this).parents().eq(1);
+    var timerID = timerRowElement.prop('id').substring('timer-row'.length);
+    timers[timerID].timerName = $(this).find('.timer-name').html();
+    refreshAllTriggers();
+  }
+}, '.timer-name-div');
