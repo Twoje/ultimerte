@@ -82,7 +82,7 @@ function Timer(time, timerID, timerName, groupID) {
         }
 
         var triggerOpt = $(this).find('.trigger-opts-timer :selected').text();
-        if ((triggerType.val() == 2) && (triggerOpt == 'Timer ' + (_this.timerID + 1))) {
+        if ((triggerType.val() == 2) && (triggerOpt == _this.timerName)) {
           timers[thisTimerID].startTimer();
         }
 

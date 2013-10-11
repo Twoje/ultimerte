@@ -15,11 +15,11 @@ footer {
 
 td {
   padding: 5px;
-  vertical-align:middle;
 }
 
 .jumbotron {
   text-align:center;
+  font-size:14px;
 }
 
 .page-header h1 {
@@ -31,7 +31,9 @@ td {
 }
 
 .timer-group {
+  width:980px;
   padding-bottom:20px;
+  margin: 0 auto;
   margin-top:10px;
   border-top:1px solid black;
   border-bottom:1px solid black;
@@ -50,8 +52,7 @@ td {
   display:none;
 }
 
-.timer-name-div {
-  padding: 5px 10px;
+.timer-name-div, .timer-hours-div, .timer-mins-div, .timer-secs-div {
   border: 1px solid transparent;
   border-radius:4px;
 }
@@ -61,8 +62,6 @@ td {
 
 .timer-hours-div, .timer-mins-div, .timer-secs-div {
   display:inline;
-  border: 1px solid transparent;
-  border-radius:4px;
 }
 
 .name-field {
@@ -72,4 +71,27 @@ td {
 
 .table {
   table-layout:fixed;
+  width:980px;
+  margin: 0 auto;
+}
+
+.timer {
+  font-size:28px;
+  width:170px;
+}
+
+.trigger-opts-timer, .trigger-type-timer {
+  width:120px;
+}
+
+.timer-btns {
+  width:250px;
+}
+
+.cell-div {
+  padding: 5px 10px;
+}
+
+.auto-reset-cell {
+  width:100px;
 }

@@ -74,26 +74,26 @@ function addTimer() {
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.mp3' type='audio/mpeg'></audio></td>\
       <td class='timer-name-cell'>\
-        <div class='timer-name-div'><span class='timer-name'>" + timerName + "</span></div>\
+        <div class='timer-name-div cell-div' contentEditable='true'><span class='timer-name'>" + timerName + "</span></div>\
       </td>\
-      <td class='timer' id='timer" + timerID + "'>\
-        <div class='timer-hours-div'><span class='timer-hours'></span></div>:\
-        <div class='timer-mins-div'><span class='timer-mins'></span></div>:\
-        <div class='timer-secs-div'><span class='timer-secs'></span></div>\
-      </td>\
-      <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
-      <td>\
+      <td class='timer' id='timer" + timerID + "'><div class='cell-div'>\
+        <div class='timer-hours-div' contentEditable='true'><span class='timer-hours'></span></div><span>:</span>\
+        <div class='timer-mins-div' contentEditable='true'><span class='timer-mins'></span></div><span>:</span>\
+        <div class='timer-secs-div' contentEditable='true'><span class='timer-secs'></span></div>\
+      </div></td>\
+      <td class='auto-reset-cell'><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
+      <td class='timer-btns'>\
         <a class='btn btn-primary btn-sm btn-start-timer' id='btn-start-timer" + timerID + "'>Start</a>\
         <a class='btn btn-primary btn-sm btn-pause-timer' id='btn-pause-timer" + timerID + "'>Pause</a>\
         <a class='btn btn-primary btn-sm btn-reset-timer' id='btn-reset-timer" + timerID + "'>Reset</a>\
         <a class='btn btn-danger btn-sm btn-del-timer' id='btn-del-timer" + timerID + "'>Delete</a>\
       </td>\
-      <td><select class='form-control trigger-type-timer'>\
+      <td><select class='trigger-type-timer'>\
         <option value='0'>No Trigger</option>\
         <option value='1'>will trigger</option>\
         <option value='2'>is triggered by</option>\
       </select></td>\
-      <td><select class='form-control trigger-opts-timer' id='trigger-opts-timer" + timerID + "' disabled></select></td>\
+      <td><select class='trigger-opts-timer' id='trigger-opts-timer" + timerID + "' disabled></select></td>\
     </tr>");
 
   // Create new timer object and add to timer dict
@@ -144,7 +144,6 @@ function addGroup() {
         </div>\
       </form>\
       <table class='table'>\
-        <col width=10%><col width=10%><col width=15%><col width=25%><col width=20%><col width=20%>\
         <tbody></tbody>\
       </table>\
     </div>");
@@ -268,14 +267,12 @@ $('.jumbotron').on({
     $(this).css('border-color', 'transparent');
   },
   click : function() {
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     timers[timerID].resetTimer();
-    $(this).find('.timer-hours').prop('contentEditable', true);
   },
   blur : function() {
-    $(this).find('.timer-hours').prop('contentEditable', false);
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     var hours = Math.floor(timers[timerID].count / 3600);
     var newHours = $(this).find('.timer-hours').html();
@@ -294,14 +291,12 @@ $('.jumbotron').on({
     $(this).css('border-color', 'transparent');
   },
   click : function() {
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     timers[timerID].resetTimer();
-    $(this).find('.timer-mins').prop('contentEditable', true);
   },
   blur : function() {
-    $(this).find('.timer-mins').prop('contentEditable', false);
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     var mins = Math.floor((timers[timerID].count % 3600) / 60);
     var newMins = $(this).find('.timer-mins').html();
@@ -320,14 +315,12 @@ $('.jumbotron').on({
     $(this).css('border-color', 'transparent');
   },
   click : function() {
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     timers[timerID].resetTimer();
-    $(this).find('.timer-secs').prop('contentEditable', true);
   }, 
   blur : function () {
-    $(this).find('.timer-secs').prop('contentEditable', false);
-    var timerElement = $(this).parent();
+    var timerElement = $(this).parents().eq(1);
     var timerID = timerElement.prop('id').substring('timer'.length);
     var secs = timers[timerID].count % 60;
     var newSecs = $(this).find('.timer-secs').html();
@@ -359,13 +352,10 @@ $('.jumbotron').on({
   mouseleave : function() {
     $(this).css('border-color', 'transparent');
   },
-  click : function() {
-    $(this).prop('contentEditable', true);
-  },
   blur : function () {
     var timerRowElement = $(this).parents().eq(1);
     var timerID = timerRowElement.prop('id').substring('timer-row'.length);
-    timers[timerID].timerName = $(this).find('.timer-name').html();
+    timers[timerID].timerName = $(this).html();
     refreshAllTriggers();
   }
 }, '.timer-name-div');
