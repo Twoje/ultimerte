@@ -48,3 +48,23 @@ td {
 .sfx-cell {
   display:none;
 }
+
+.timer-name-cell {
+  word-wrap:break-word;
+}
+.edit-timer-name-cell {
+  display:none;
+}
+
+.edit-timer-name, .edit-timer-name-confirm, .edit-timer-name-cancel {
+  font-size:.5em;
+}
+
+.name-field {
+  margin:0 auto;
+  width:165px;
+}
+
+.table {
+  table-layout:fixed;
+}

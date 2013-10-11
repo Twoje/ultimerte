@@ -128,8 +128,6 @@ function Timer(time, timerID, timerName, groupID) {
     if (groups[groupID].length <= 1) {
       $('#group-btns' + groupID).remove();
     }
-    $.each(timers, function() {
-      refreshTriggers(this.timerID);
-    });
+    refreshAllTriggers();
   }
 }

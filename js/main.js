@@ -32,6 +32,12 @@ function refreshTriggers(timerID) {
   }
 }
 
+function refreshAllTriggers() {
+  $.each(timers, function() {
+    refreshTriggers(this.timerID);
+  })
+}
+
 function addTimer() {
   var parent = $(this).parent();
   var ggparent = parent.parents().eq(1);
@@ -67,7 +73,15 @@ function addTimer() {
   table.append("\
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.mp3' type='audio/mpeg'></audio></td>\
-      <td>" + timerName + "</td>\
+      <td class='timer-name-cell'>\
+        <span class='timer-name'>" + timerName + "</span>\
+        <a class='edit-timer-name'> edit</a>\
+      </td>\
+      <td class='edit-timer-name-cell'>\
+        <input type='text' placeholder='timer name' class='form-control name-field'>\
+        <a class='edit-timer-name-confirm'> ok</a>\
+        <a class='edit-timer-name-cancel'> cancel</a>\
+      </td>\
       <td class='timer' id='timer" + timerID + "'></td>\
       <td><label><input type='checkbox' class='auto-reset-timer' checked><small> Auto Reset</small></label></td>\
       <td>\
@@ -131,7 +145,10 @@ function addGroup() {
           <a class='btn btn-danger btn-sm btn-del-group'>Delete Group</a>\
         </div>\
       </form>\
-      <table class='table'><tbody></tbody></table>\
+      <table class='table'>\
+        <col width=10%><col width=10%><col width=15%><col width=25%><col width=20%><col width=20%>\
+        <tbody></tbody>\
+      </table>\
     </div>");
   groups[groupID] = new Array();
 }
@@ -242,4 +259,31 @@ $('.jumbotron').on('change', '.trigger-type-timer', function(){
   else {
     $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', false);
   }
+});
+
+
+// Edit name of timer
+$('.jumbotron').on('click', '.edit-timer-name', function() {
+  var timerRowElement = $(this).parents().eq(1);
+  var timerID = timerRowElement.attr('id').substring('timer-row'.length);
+  timerRowElement.find('.name-field').val(timers[timerID].timerName);
+  timerRowElement.find('.edit-timer-name-cell').show();
+  timerRowElement.find('.timer-name-cell').hide();
+});
+
+$('.jumbotron').on('click', '.edit-timer-name-cancel', function() {
+  var timerRowElement = $(this).parents().eq(1);
+  timerRowElement.find('.edit-timer-name-cell').hide();
+  timerRowElement.find('.timer-name-cell').show();
+});
+
+$('.jumbotron').on('click', '.edit-timer-name-confirm', function() {
+  var timerRowElement = $(this).parents().eq(1);
+  var timerID = timerRowElement.attr('id').substring('timer-row'.length);
+  var timerName = timerRowElement.find('.name-field').val();
+  timers[timerID].timerName = timerName;
+  refreshAllTriggers();
+  timerRowElement.find('.timer-name').html(timerName);
+  timerRowElement.find('.edit-timer-name-cell').hide();
+  timerRowElement.find('.timer-name-cell').show();
 });
