@@ -331,15 +331,15 @@ $('.jumbotron').on({
 }, '.timer-secs-div');
 
 $('.jumbotron').on('keyup', '.timer-hours-div', function () {
-  $(this).html($(this).html().replace(/[^0-9]/g,''));
+  $(this).find('.timer-hours').html($(this).html().replace(/[^0-9]/g,''));
 });
 
 $('.jumbotron').on('keyup', '.timer-mins-div', function () {
-  $(this).html($(this).html().replace(/[^0-9]/g,''));
+  $(this).find('.timer-mins').html($(this).html().replace(/[^0-9]/g,''));
 });
 
 $('.jumbotron').on('keyup', '.timer-secs-div', function () {
-  $(this).html($(this).html().replace(/[^0-9]/g,''));
+  $(this).find('.timer-secs').html($(this).html().replace(/[^0-9]/g,''));
 });
 
 
