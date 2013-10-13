@@ -49,10 +49,14 @@ function addTimer() {
   var secsField = parent.find('.secs-field');
 
   // Get length of timer in seconds
+  var MAX_LENGTH = 9007199254740992;
   var hours = hoursField.val();
   var mins = minsField.val();
   var secs = secsField.val();
   var cdLength = hours * 3600 + mins * 60 + secs / 1;
+  if (MAX_LENGTH < cdLength) {
+    return;
+  }
 
   var timerName = nameField.val();
 
@@ -136,9 +140,9 @@ function addGroup() {
         <div class='form-group'>\
           <h2>Group " + (groupID + 1) + "</h2>\
           <input type='text' placeholder='timer name (optional)' class='form-control name-field'>\
-          <input type='number' placeholder='hours' min='0' name='hours' class='form-control hours-field'>\
-          <input type='number' placeholder='mins' min='0' max='59' name='minutes' class='form-control mins-field'>\
-          <input type='number' placeholder='secs' min='0' max='59' name='seconds' class='form-control secs-field'>\
+          <input pattern='[0-9]*' placeholder='hours' name='hours' class='form-control hours-field'>\
+          <input pattern='[0-9]*' placeholder='mins' maxlength='2' name='minutes' class='form-control mins-field'>\
+          <input pattern='[0-9]*' placeholder='secs' maxlength='2' name='seconds' class='form-control secs-field'>\
           <a class='btn btn-primary btn-sm btn-add-timer'>Add Timer</a>\
           <a class='btn btn-danger btn-sm btn-del-group'>Delete Group</a>\
         </div>\

@@ -45,7 +45,7 @@ td {
 
 .hours-field, .mins-field, .secs-field {
   display:inline;
-  width:auto;
+  width:75px;
 }
 
 .sfx-cell {
