@@ -83,18 +83,26 @@ function getTimerLength(obj) {
   }
 
   if (MAX_LENGTH < cdLength) {
-    return;
+    return false;
   }
 
   // Make sure timer fields aren't empty
   if (cdLength <= 0 || (hoursField.val() == '' && minsField.val() == '' && secsField.val() == '')) {
-    return;
+    return false;
   }
 
-  // Clear timer entry fields
-  clearFields([hoursField, minsField, secsField]);
-
   return cdLength;
+}
+
+function checkCDLength(cdLength, obj) {
+  if (cdLength == false) {
+    obj.addClass('has-error');
+    return false;
+  }
+  else {
+    obj.removeClass('has-error');
+    return true;
+  }
 }
 
 function addTimer() {
@@ -104,10 +112,25 @@ function addTimer() {
 
   var nameField = parent.find('.name-field');
 
-  var timerName = nameField.val();
-  nameField.val('');
-
+  var timerName = nameField.val().trim();
   var cdLength = getTimerLength(parent);
+
+  if (timerName == '' || timerName == null) {
+    nameField.parent().addClass('has-error');
+    checkCDLength(cdLength, parent.find('.timer-fields'));
+    return;
+  }
+  else {
+    nameField.parent().removeClass('has-error');
+  }
+
+  if (!checkCDLength(cdLength, parent.find('.timer-fields'))) {
+    return;
+  }
+
+  // Clear timer entry fields
+  clearFields(getTimerFields(parent));
+  nameField.val('');
 
   // Find lowest possible timer ID to use
   var timerID = 0;
@@ -188,10 +211,12 @@ function addGroup() {
       <form class='navbar-form'>\
         <div class='form-group'>\
           <h2>Group " + (groupID + 1) + "</h2>\
-          <input type='text' placeholder='timer name (optional)' class='form-control name-field'>\
+          <span><input type='text' placeholder='timer name' class='form-control name-field'></span>\
+          <span class='timer-fields'>\
           <input pattern='[0-9]*' placeholder='hours' name='hours' class='form-control hours-field'>\
           <input pattern='[0-9]*' placeholder='mins' maxlength='2' name='minutes' class='form-control mins-field'>\
           <input pattern='[0-9]*' placeholder='secs' maxlength='2' name='seconds' class='form-control secs-field'>\
+          </span>\
           <a class='btn btn-primary btn-sm btn-add-timer'>Add Timer</a>\
           <a class='btn btn-danger btn-sm btn-del-group'>Delete Group</a>\
         </div>\
@@ -332,6 +357,12 @@ $('.jumbotron').on({
 $('body').on('click', '.confirm-timer-edit', function() {
   var parent = $(this).parent();
   var cdLength = getTimerLength(parent);
+  if (!checkCDLength(cdLength, parent.find('.timer-fields'))) {
+    return;
+  }
+  // Clear timer entry fields
+  clearFields(getTimerFields(parent));
+
   var timerElementID = parent.prop('id');
   var timerID = timerElementID.substring('timer-popup'.length);
   var timer = timers[timerID];
@@ -344,6 +375,7 @@ $('body').on('click', '.confirm-timer-edit', function() {
 
 $('body').on('click', '.cancel-timer-edit', function() {
   var parent = $(this).parent();
+  parent.find('.timer-fields').removeClass('has-error');
   clearFields(getTimerFields(parent));
   parent.hide();
 });
