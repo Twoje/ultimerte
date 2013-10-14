@@ -162,11 +162,6 @@ function addTimer() {
   timers[timerID] = timer;
   groups[groupID].push(timer);
 
-  // Get trigger options
-  $.each(Object.keys(timers), function(key) {
-    addTriggers(key);
-  });
-
   // Add start all button if number of timers in group is > 1
   if (ggparent.find('.timer-row').length == 2) {
     ggparent.append("\
@@ -178,6 +173,7 @@ function addTimer() {
       </div>");
   }
 
+  refreshAllTriggers();
   relocateVisiblePopups();
 }
 
