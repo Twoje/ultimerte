@@ -35,15 +35,23 @@ function refreshTrigger(timerID) {
 function refreshAllTriggers() {
   $.each(timers, function() {
     refreshTrigger(this.timerID);
-  })
+  });
 }
 
-function relocateVisiblePopups() {
+function relocateVisibleTimerPopups() {
   $.each($('.timer-popup:visible'), function() {
     var timerID = this.getAttribute('id').substring('timer-popup'.length);
     offset = $('#timer' + timerID).offset();
     $('#timer-popup' + timerID).offset({top: offset.top + 55, left: offset.left - 40});
-  })
+  });
+}
+
+function relocateVisibleNamePopups() {
+  $.each($('.name-popup:visible'), function() {
+    var timerID = this.getAttribute('id').substring('name-popup'.length);
+    offset = $('#timer-row' + timerID + ' .timer-name-cell').offset();
+    $('#name-popup' + timerID).offset({top: offset.top + 55, left: offset.left - 10});
+  });
 }
 
 function clearFields(fields) {
@@ -145,7 +153,7 @@ function addTimer() {
     <tr class='timer-row' id='timer-row" + timerID + "'>\
       <td class='sfx-cell'><audio class='sfx-ding'><source src='ding.mp3' type='audio/mpeg'></audio></td>\
       <td class='timer-name-cell'>\
-        <div class='timer-name-div cell-div' contentEditable='true'><span class='timer-name'>" + timerName + "</span></div>\
+        <div class='timer-name-div cell-div'><span class='timer-name'>" + timerName + "</span></div>\
       </td>\
       <td class='timer' id='timer" + timerID + "'><div class='cell-div'>\
         <div class='timer-hours-div'><span class='timer-hours'></span></div><span>:</span>\
@@ -169,7 +177,12 @@ function addTimer() {
 
   // Timer edit popup
   $("body").append("\
-    <div class='timer-popup' id='timer-popup" + timerID + "'>\
+    <div class='name-popup popup' id='name-popup" + timerID + "'>\
+      <input type='text' placeholder='timer name' class='form-control name-field'>\
+      <a class='btn btn-small btn-primary confirm-name-edit'>OK</a>\
+      <a class='btn btn-small btn-primary cancel-name-edit'>Cancel</a>\
+    </div>\
+    <div class='timer-popup popup' id='timer-popup" + timerID + "'>\
       <div class='timer-fields'>\
         <input pattern='[0-9]*' placeholder='hours' name='hours' class='form-control hours-field'>\
         <input pattern='[0-9]*' placeholder='mins' maxlength='2' name='minutes' class='form-control mins-field'>\
@@ -197,7 +210,8 @@ function addTimer() {
   }
 
   refreshAllTriggers();
-  relocateVisiblePopups();
+  relocateVisibleTimerPopups();
+  relocateVisibleNamePopups();
 }
 
 function addGroup() {
@@ -275,7 +289,8 @@ $('.jumbotron').on('click', '.btn-del-timer', function() {
   clearInterval(timers[timerID].counter);
   timers[timerID].deleteTimer();
   refreshAllTriggers();
-  relocateVisiblePopups();
+  relocateVisibleTimerPopups();
+  relocateVisibleNamePopups();
 });
 
 // GROUP TIMERS
@@ -314,7 +329,8 @@ $('.jumbotron').on('click', '.btn-clear-group', function() {
     timers[this].deleteTimer();
   });
   refreshAllTriggers();
-  relocateVisiblePopups();
+  relocateVisibleTimerPopups();
+  relocateVisibleNamePopups();
 });
 
 // Remove group of timers
@@ -330,7 +346,8 @@ $('.jumbotron').on('click', '.btn-del-group', function() {
   groupElement.remove();
   delete groups[groupElementID.substring('timer-group'.length)];
   refreshAllTriggers();
-  relocateVisiblePopups();
+  relocateVisibleTimerPopups();
+  relocateVisibleNamePopups();
 });
 
 // Enable/disable trigger options depending on trigger type
@@ -349,8 +366,11 @@ $('.jumbotron').on({
   click : function() {
     timerElementID = $(this).prop('id');
     timerID = timerElementID.substring('timer'.length);
+    $('#name-popup' + timerID + ' .cancel-name-edit').click();
     $('#timer-popup' + timerID).slideDown('fast');
-    relocateVisiblePopups();
+    relocateVisibleTimerPopups();
+
+
   }
 }, '.timer');
 
@@ -382,16 +402,42 @@ $('body').on('click', '.cancel-timer-edit', function() {
 
 // Edit name of timer
 $('.jumbotron').on({
-  mouseenter : function() {
-    $(this).css('border-color', '#ccc');
-  },
-  mouseleave : function() {
-    $(this).css('border-color', 'transparent');
-  },
-  blur : function () {
-    var timerRowElement = $(this).parents().eq(1);
-    var timerID = timerRowElement.prop('id').substring('timer-row'.length);
-    timers[timerID].timerName = $(this).html();
-    refreshAllTriggers();
+  click : function() {
+    timerElementID = $(this).parent().prop('id');
+    timerID = timerElementID.substring('timer-row'.length);
+    $('#timer-popup' + timerID + ' .cancel-timer-edit').click();
+    $('#name-popup' + timerID).slideDown('fast');
+    relocateVisibleNamePopups();
   }
-}, '.timer-name-div');
+}, '.timer-name-cell');
+
+$('body').on('click', '.confirm-name-edit', function() {
+  var parent = $(this).parent();
+  var nameField = parent.find('.name-field');
+  var timerName = nameField.val();
+
+  if (timerName == '' || timerName == null) {
+    nameField.parent().addClass('has-error');
+    return;
+  }
+  else {
+    nameField.parent().removeClass('has-error');
+  }
+
+  var timerElementID = parent.prop('id');
+  var timerID = timerElementID.substring('name-popup'.length);
+  var timer = timers[timerID];
+  timer.timerName = timerName;
+  $('#timer-row' + timerID).find('.timer-name').html(timerName);
+
+  nameField.val('');
+  parent.hide();
+});
+
+$('body').on('click', '.cancel-name-edit', function() {
+  var parent = $(this).parent();
+  var nameField = parent.find('.name-field');
+  parent.removeClass('has-error');
+  nameField.val('');
+  parent.hide();
+});
