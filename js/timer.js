@@ -1,9 +1,8 @@
-function Timer(time, timerID, timerName, groupID) {
+function Timer(time, timerID, timerName) {
   this.count = time;
   this.isTicking = false;
   this.timerName = timerName;
   this.timerID = timerID;
-  this.groupID = groupID;
   this.timerElement = $('#timer' + timerID);
   this.timerHours = this.timerElement.find('.timer-hours');
   this.timerMins = this.timerElement.find('.timer-mins');
@@ -121,24 +120,5 @@ function Timer(time, timerID, timerName, groupID) {
     this.getTimerText();
     this.timerElement.css('color','black');
     this.timerRow.removeClass('warning').removeClass('danger').removeClass('success');
-  }
-
-  // Delete the timer
-  this.deleteTimer = function() {
-    delete timers[timerID];
-    this.timerRow.remove();
-    $('#timer-popup' + this.timerID).remove();
-
-    // Remove the timer from the array of timers in the group dict
-    $.each(groups[groupID], function() {
-      if (this.timerID == timerID) {
-        groups[groupID].splice(groups[groupID].indexOf(this), 1);
-      }
-    })
-
-    // Remove the group buttons if <= 1 timer remains after deletion
-    if (groups[groupID].length <= 1) {
-      $('#group-btns' + groupID).remove();
-    }
   }
 }

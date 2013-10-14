@@ -115,8 +115,8 @@ function checkCDLength(cdLength, obj) {
 
 function addTimer() {
   var parent = $(this).parent();
-  var ggparent = parent.parents().eq(1);
-  var groupID = parent.find('h2').html().substring('Group '.length) - 1;
+  var ggparent = $(this).parents().eq(2);
+  var groupID = ggparent.prop('id').substring('timer-group'.length);
 
   var nameField = parent.find('.name-field');
 
@@ -194,7 +194,7 @@ function addTimer() {
     ");
 
   // Create new timer object and add to timer dict
-  var timer = new Timer(cdLength, timerID, timerName, groupID);
+  var timer = new Timer(cdLength, timerID, timerName);
   timers[timerID] = timer;
   groups[groupID].push(timer);
 
@@ -224,7 +224,7 @@ function addGroup() {
     <div class='timer-group' id='timer-group" + groupID + "'>\
       <form class='navbar-form'>\
         <div class='form-group'>\
-          <h2>Group " + (groupID + 1) + "</h2>\
+          <h2 class='group-name'>Group " + (groupID + 1) + "</h2>\
           <span><input type='text' placeholder='timer name' class='form-control name-field'></span>\
           <span class='timer-fields'>\
           <input pattern='[0-9]*' placeholder='hours' name='hours' class='form-control hours-field'>\
@@ -260,6 +260,30 @@ function getGroupTimerIDs(element) {
   return timerIDs;
 }
 
+function deleteTimer(timer) {
+  var timerID = timer.timerID;
+  $('#timer-popup' + timerID).remove();
+  $('#name-popup' + timerID).remove();
+
+  var groupElement = $('#timer-row' + timerID).parents().eq(2);
+  var groupID = groupElement.prop('id').substring('timer-group'.length);
+
+  timer.timerRow.remove();
+  delete timers[timerID];
+
+  // Remove the timer from the array of timers in the group dict
+  $.each(groups[groupID], function() {
+    if (this.timerID == timerID) {
+      groups[groupID].splice(groups[groupID].indexOf(this), 1);
+    }
+  })
+
+  // Remove the group buttons if <= 1 timer remains after deletion
+  if (groups[groupID].length <= 1) {
+    $('#group-btns' + groupID).remove();
+  }
+}
+
 
 // INDIVIDUAL TIMERS
 // Add timer
@@ -287,7 +311,7 @@ $('.jumbotron').on('click', '.btn-reset-timer', function() {
 $('.jumbotron').on('click', '.btn-del-timer', function() {
   var timerID = getButtonTimerID($(this), 'btn-del-timer');
   clearInterval(timers[timerID].counter);
-  timers[timerID].deleteTimer();
+  deleteTimer(timers[timerID]);
   refreshAllTriggers();
   relocateVisibleTimerPopups();
   relocateVisibleNamePopups();
@@ -326,7 +350,7 @@ $('.jumbotron').on('click', '.btn-clear-group', function() {
   var timerIDs = getGroupTimerIDs($(this));
   $.each(timerIDs, function() {
     clearInterval(timers[this].counter);
-    timers[this].deleteTimer();
+    deleteTimer(timers[this]);
   });
   refreshAllTriggers();
   relocateVisibleTimerPopups();
@@ -337,11 +361,11 @@ $('.jumbotron').on('click', '.btn-clear-group', function() {
 $('.jumbotron').on('click', '.btn-del-group', function() {
   var groupElement = $(this).parents().eq(2);
   var groupElementID = groupElement.prop('id');
-  var timerIDs = groupElement.find('.timer');
-  $.each(timerIDs, function() {
-    var timerID = $(this).prop('id').substring('timer'.length);
+  var timerObjects = groupElement.find('.timer');
+  $.each(timerObjects, function() {
+    timerID = this.getAttribute('id').substring('timer'.length);
     clearInterval(timers[timerID].counter);
-    timers[timerID].deleteTimer();
+    deleteTimer(timers[timerID]);
   });
   groupElement.remove();
   delete groups[groupElementID.substring('timer-group'.length)];
