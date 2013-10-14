@@ -95,3 +95,23 @@ td {
 .auto-reset-cell {
   width:100px;
 }
+
+.timer-popup {
+  overflow:hidden;
+  position:absolute;
+  display:none;
+  width:250px;
+  height:100px;
+  z-index:1002;
+  border: 1px solid black;
+  border-radius:4px;
+  background-color: white;
+}
+
+.timer-fields {
+  margin: 10px 0 10px 7px;
+}
+
+.confirm-timer-edit {
+  margin-left:70px;
+}

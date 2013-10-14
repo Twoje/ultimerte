@@ -10,8 +10,9 @@ function Timer(time, timerID, timerName, groupID) {
   this.timerSecs = this.timerElement.find('.timer-secs');
   this.timerRow = $('#timer-row' + timerID);
 
-  this.changeTime = function() {
-    time = this.count;
+  this.changeTime = function(newTime) {
+    time = newTime;
+    this.count = time;
   }
 
   // Create leading zero for numbers < 10
@@ -126,6 +127,7 @@ function Timer(time, timerID, timerName, groupID) {
   this.deleteTimer = function() {
     delete timers[timerID];
     this.timerRow.remove();
+    $('#timer-popup' + this.timerID).remove();
 
     // Remove the timer from the array of timers in the group dict
     $.each(groups[groupID], function() {
@@ -138,6 +140,5 @@ function Timer(time, timerID, timerName, groupID) {
     if (groups[groupID].length <= 1) {
       $('#group-btns' + groupID).remove();
     }
-    refreshAllTriggers();
   }
 }
