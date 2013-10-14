@@ -28,7 +28,7 @@ function refreshTrigger(timerID) {
   var selectedTriggerOpt = $('#timer-row' + timerID).find('.trigger-opts-timer :selected');
   addTriggers(timerID);
   if (Object.keys(timers).indexOf(selectedTriggerOpt.val()) > -1) {
-    $(triggerOpts).val(selectedTriggerOpt.text());
+    $(triggerOpts).val(selectedTriggerOpt.val());
   }
 }
 
@@ -431,6 +431,7 @@ $('body').on('click', '.confirm-name-edit', function() {
   $('#timer-row' + timerID).find('.timer-name').html(timerName);
 
   nameField.val('');
+  refreshAllTriggers();
   parent.hide();
 });
 
