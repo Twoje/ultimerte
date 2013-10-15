@@ -23,9 +23,9 @@ function Timer(time, timerID, timerName) {
 
   // Get clock text for timer
   this.getTimerText = function() {
-    var hours = Math.floor(this.count / 3600);
-    var mins = Math.floor((this.count % 3600) / 60);
-    var secs = this.count % 60;
+    var hours = Math.floor(this.count / 36000);
+    var mins = Math.floor((this.count % 36000) / 600);
+    var secs = Math.floor((this.count % 600) / 10);
 
     this.timerHours.html(pad(hours));
     this.timerMins.html(pad(mins));
@@ -54,41 +54,39 @@ function Timer(time, timerID, timerName) {
 
       // Reset timer if auto reset box checked
       if (this.timerRow.find('.auto-reset-timer:checked').length > 0) {
-        setTimeout(function(){return;}, 1000);
         this.resetTimer();
       }
 
       clearInterval(this.counter);
 
-      // Triggers
-      var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected');
-
-      // Will Trigger
-      if (thisTriggerType.val() == 1) {
-        var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected');
-        if (thisTriggerOpt.val() != 'default') {
-          timers[thisTriggerOpt.val()].startTimer();
-        }
-      }
-
-      // Is Triggered By
-      $.each($('.timer-row'), function() {
-        var thisTimerElementID = $(this).find('.timer').prop('id');
-        var thisTimerID = thisTimerElementID.substring('timer'.length);
-
-        var triggerType = $(this).find('.trigger-type-timer :selected');
-        if (thisTimerID == _this.timerID || triggerType.val() == 1) {
-          return true;
-        }
-
-        var triggerOpt = $(this).find('.trigger-opts-timer :selected').text();
-        if ((triggerType.val() == 2) && (triggerOpt == _this.timerName)) {
-          timers[thisTimerID].startTimer();
-        }
-
-      });
+      this.activateTriggers();
 
       return;
+    }
+  }
+
+  this.activateTriggers = function() {
+    // Triggers
+    var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected');
+    var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected');
+
+    // Will Start
+    if (thisTriggerType.val() == 1) {
+      if (thisTriggerOpt.val() != 'default') {
+        timers[thisTriggerOpt.val()].startTimer();
+      }
+    }
+    // Will Pause
+    else if (thisTriggerType.val() == 2) {
+      if (thisTriggerOpt.val() != 'default') {
+        timers[thisTriggerOpt.val()].pauseTimer();
+      }
+    }
+    // Will Reset
+    else if (thisTriggerType.val() == 3) {
+      if (thisTriggerOpt.val() != 'default') {
+        timers[thisTriggerOpt.val()].resetTimer();
+      }
     }
   }
 
@@ -98,7 +96,7 @@ function Timer(time, timerID, timerName) {
       this.isTicking = true;
       this.timerElement.css('color','green');
       this.timerRow.removeClass('warning').removeClass('danger').addClass('success');
-      this.counter = setInterval(function(){_this.countdown();}, 1000);
+      this.counter = setInterval(function(){_this.countdown();}, 100);
     }
   }
 

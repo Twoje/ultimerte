@@ -81,13 +81,13 @@ function getTimerLength(obj) {
   var cdLength = 0;
 
   if (!isNaN(hours) && typeof hours == 'number') {
-    cdLength += hours * 3600;
+    cdLength += hours * 36000;
   }
   if (!isNaN(mins) && typeof mins == 'number') {
-    cdLength += mins * 60;
+    cdLength += mins * 600;
   }
   if (!isNaN(secs) && typeof secs == 'number') {
-    cdLength += secs;
+    cdLength += secs * 10;
   }
 
   if (MAX_LENGTH < cdLength) {
@@ -169,8 +169,9 @@ function addTimer() {
       </td>\
       <td><select class='trigger-type-timer'>\
         <option value='0'>No Trigger</option>\
-        <option value='1'>will trigger</option>\
-        <option value='2'>is triggered by</option>\
+        <option value='1'>will start</option>\
+        <option value='2'>will pause</option>\
+        <option value='3'>will reset</option>\
       </select></td>\
       <td><select class='trigger-opts-timer' id='trigger-opts-timer" + timerID + "' disabled></select></td>\
     </tr>");
