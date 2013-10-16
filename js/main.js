@@ -20,16 +20,32 @@ function addTriggers(timerID) {
     }
     triggersStr = triggersStr.concat("</optgroup>");
   });
-  $("#trigger-opts-timer" + timerID).html(triggersStr);
+
+  triggerOptDropdowns = $('#timer-row' + timerID).find('.trigger-opts-timer');
+
+  $.each(triggerOptDropdowns, function() {
+    $(this).html(triggersStr);
+  });
 }
 
 function refreshTrigger(timerID) {
   var triggerOpts = $('#timer-row' + timerID).find('.trigger-opts-timer');
-  var selectedTriggerOpt = $('#timer-row' + timerID).find('.trigger-opts-timer :selected');
+  var selectedTriggerOpts = {};
+  $.each(triggerOpts, function() {
+    var triggerElementID = $(this).prop('id');
+    var triggerID = triggerElementID.substring('trigger-opts'.length, triggerElementID.length - ('-timer' + timerID).length);
+    var triggerOpt = $(this).val();
+    selectedTriggerOpts[triggerElementID] = triggerOpt;
+  });
+
   addTriggers(timerID);
-  if (Object.keys(timers).indexOf(selectedTriggerOpt.val()) > -1) {
-    $(triggerOpts).val(selectedTriggerOpt.val());
-  }
+
+  $.each(selectedTriggerOpts, function(key, value) {
+    if (Object.keys(timers).indexOf(value) > -1) {
+      console.log(key, value);
+      $('#' + key).val(value);
+    }
+  });
 }
 
 function refreshAllTriggers() {
@@ -167,13 +183,17 @@ function addTimer() {
         <a class='btn btn-primary btn-sm btn-reset-timer' id='btn-reset-timer" + timerID + "'>Reset</a>\
         <a class='btn btn-danger btn-sm btn-del-timer' id='btn-del-timer" + timerID + "'>Delete</a>\
       </td>\
-      <td><select class='trigger-type-timer'>\
-        <option value='0'>No Trigger</option>\
+      <td class='trigger-dropdown-cell trigger-type-cell'>\
+      <div style='padding:0'><select class='form-control trigger-type-timer' id='trigger-type0-timer" + timerID + "'>\
+        <option value='0'>no trigger</option>\
         <option value='1'>will start</option>\
         <option value='2'>will pause</option>\
         <option value='3'>will reset</option>\
-      </select></td>\
-      <td><select class='trigger-opts-timer' id='trigger-opts-timer" + timerID + "' disabled></select></td>\
+      </div></select></td>\
+      <td class='trigger-dropdown-cell trigger-opts-cell'>\
+      <div style='padding:0'><select class='form-control trigger-opts-timer' id='trigger-opts0-timer" + timerID + "' disabled>\
+      </div></select></td>\
+      <td class='trigger-add-cell'><a class='btn btn-success btn-sm btn-add-trigger'>+</a></td>\
     </tr>");
 
   // Timer edit popup
@@ -377,12 +397,50 @@ $('.jumbotron').on('click', '.btn-del-group', function() {
 
 // Enable/disable trigger options depending on trigger type
 $('.jumbotron').on('change', '.trigger-type-timer', function(){
+  var timerID = $(this).parents().eq(2).prop('id').substring('timer-row'.length);
+  var triggerElementID = $(this).prop('id');
+  var triggerID = triggerElementID.substring('trigger-type'.length, triggerElementID.length - ('-timer' + timerID).length);
   if ($(':selected', $(this)).val() == 0) {
-    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', true);
+    $('#trigger-opts' + triggerID + '-timer' + timerID).prop('disabled', true);
   }
   else {
-    $(this).parents().eq(1).find('.trigger-opts-timer').prop('disabled', false);
+    $('#trigger-opts' + triggerID + '-timer' + timerID).prop('disabled', false);
   }
+});
+
+// Add new trigger dropdowns
+$('body').on('click', '.btn-add-trigger', function() {
+  var timerRow = $(this).parents().eq(1);
+  var timerID = timerRow.prop('id').substring('timer-row'.length);
+  var triggerTypeCell = timerRow.find('.trigger-type-cell');
+  var triggerOptsCell = timerRow.find('.trigger-opts-cell');
+  var triggerAddCell = timerRow.find('.trigger-add-cell');
+  triggerCount = triggerTypeCell.find('.trigger-type-timer').length;
+
+  triggerTypeCell.append("\
+    <div><select class='form-control trigger-type-timer' id='trigger-type" + triggerCount + "-timer" + timerID + "'>\
+      <option value='0'>no trigger</option>\
+      <option value='1'>will start</option>\
+      <option value='2'>will pause</option>\
+      <option value='3'>will reset</option>\
+    </select></div>");
+
+  triggerOptsCell.append("\
+    <div><select class='form-control trigger-opts-timer' id='trigger-opts" + triggerCount + "-timer" + timerID + "' disabled></select></div>");
+  triggerAddCell.append("<a class='btn btn-danger btn-sm btn-del-trigger' id='btn-del-trigger" + triggerCount + "-timer" + timerID + "'>-</a>");
+
+  refreshTrigger(timerID);
+});
+
+// Remove trigger dropdown
+$('body').on('click', '.btn-del-trigger', function() {
+  var timerRow = $(this).parents().eq(1);
+  var timerID = timerRow.prop('id').substring('timer-row'.length);
+  var triggerElementID = $(this).prop('id');
+  var triggerID = triggerElementID.substring('btn-del-trigger'.length, triggerElementID.length - ('-timer' + timerID).length);
+  $('#trigger-type' + triggerID + '-timer' + timerID).parent().remove();
+  $('#trigger-opts' + triggerID + '-timer' + timerID).parent().remove();
+  $(this).remove();
 });
 
 
@@ -394,8 +452,6 @@ $('.jumbotron').on({
     $('#name-popup' + timerID + ' .cancel-name-edit').click();
     $('#timer-popup' + timerID).slideDown('fast');
     relocateVisibleTimerPopups();
-
-
   }
 }, '.timer');
 

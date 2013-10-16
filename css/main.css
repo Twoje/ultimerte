@@ -27,7 +27,8 @@ td {
 }
 
 .group-btns {
-  margin-top:10px;
+  padding-top:20px;
+  border-top:1px solid #ccc;
 }
 
 .timer-group {
@@ -37,10 +38,6 @@ td {
   margin-top:10px;
   border-top:1px solid black;
   border-bottom:1px solid black;
-}
-
-.timer-row {
-  margin: 0 5px;
 }
 
 .hours-field, .mins-field, .secs-field {
@@ -129,4 +126,17 @@ div.timer-fields {
 
 .confirm-name-edit {
   margin-left:28px;
+}
+.trigger-dropdown-cell {
+  width:135px;
+}
+.trigger-dropdown-cell div {
+  padding-top:8px;
+}
+.trigger-add-cell {
+  width:45px;
+}
+.trigger-add-cell a {
+  width:30px;
+  margin:6px 0;
 }

@@ -47,7 +47,7 @@ function Timer(time, timerID, timerName) {
       this.count = 0; // Set this.count to 0
       this.getTimerText(); // Refresh inner HTML
 
-      // This is where a notification (sound or screen flash or something) should go
+      // This is where a notification (sou               nd or screen flash or something) should go
       this.timerElement.css('color','red');
       this.timerRow.removeClass('warning').removeClass('success').addClass('danger');
       this.timerRow.find('.sfx-ding').get(0).play();
@@ -67,27 +67,34 @@ function Timer(time, timerID, timerName) {
 
   this.activateTriggers = function() {
     // Triggers
-    var thisTriggerType = this.timerRow.find('.trigger-type-timer :selected');
-    var thisTriggerOpt = this.timerRow.find('.trigger-opts-timer :selected');
+    var triggerTypes = this.timerRow.find('.trigger-type-timer :selected');
 
-    // Will Start
-    if (thisTriggerType.val() == 1) {
-      if (thisTriggerOpt.val() != 'default') {
-        timers[thisTriggerOpt.val()].startTimer();
+    $.each(triggerTypes, function() {
+      var timerRow = $(this).parents().eq(3);
+      var timerID = timerRow.prop('id').substring('timer-row'.length);
+      var triggerElementID = $(this).parent().prop('id');
+      var triggerID = triggerElementID.substring('trigger-type'.length, triggerElementID.length - ('-timer' + timerID).length);
+      var thisTriggerOptElement = $('#trigger-opts' + triggerID + '-timer' + timerID + ' :selected');
+      var triggerOpt = thisTriggerOptElement.val();
+      // Will Start
+      if ($(this).val() == 1) {
+        if (triggerOpt != 'default') {
+          timers[triggerOpt].startTimer();
+        }
       }
-    }
-    // Will Pause
-    else if (thisTriggerType.val() == 2) {
-      if (thisTriggerOpt.val() != 'default') {
-        timers[thisTriggerOpt.val()].pauseTimer();
+      // Will Pause
+      else if ($(this).val() == 2) {
+        if (triggerOpt != 'default') {
+          timers[triggerOpt].pauseTimer();
+        }
       }
-    }
-    // Will Reset
-    else if (thisTriggerType.val() == 3) {
-      if (thisTriggerOpt.val() != 'default') {
-        timers[thisTriggerOpt.val()].resetTimer();
+      // Will Reset
+      else if ($(this).val() == 3) {
+        if (triggerOpt != 'default') {
+          timers[triggerOpt].resetTimer();
+        }
       }
-    }
+    });
   }
 
   // Start the timer
